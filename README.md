@@ -4,11 +4,11 @@ Local AI Wealth Planner & Interactive Visualiser is a privacy-first, locally hos
 
 # Key Features
 
-• 100% Local AI Inference: Uses LangChain and Ollama (supporting models like Milo and Llama) to process financial data and generate strategic analysis entirely on your local machine.
-• Live Australian Macroeconomic Scraper: Built-in web scraping engine utilizing BeautifulSoup to fetch live inflation data directly from the Reserve Bank of Australia (RBA) homepage to auto-calibrate baseline metrics.
-• Inflation-Adjusted Calculation Engine: Simulates compound growth paths over up to 50 years, calculating both Nominal Value and Real Value (Today's Buying Power) side-by-side.
-• Safe Withdrawal Rate (SWR) Simulator: Models monthly passive income targets using customizable SWR limits and flags long-term nest egg sustainability.
-• Interactive Visualizations: Renders dual-line time-series projection charts using pandas and Streamlit's native charting to clearly map out the "inflation gap" over time.
+* 100% Local AI Inference: Uses LangChain and Ollama (supporting models like Milo and Llama) to process financial data and generate strategic analysis entirely on your local machine.
+* Live Australian Macroeconomic Scraper: Built-in web scraping engine utilizing BeautifulSoup to fetch live inflation data directly from the Reserve Bank of Australia (RBA) homepage to auto-calibrate baseline metrics.
+* Inflation-Adjusted Calculation Engine: Simulates compound growth paths over up to 50 years, calculating both Nominal Value and Real Value (Today's Buying Power) side-by-side.
+* Safe Withdrawal Rate (SWR) Simulator: Models monthly passive income targets using customizable SWR limits and flags long-term nest egg sustainability.
+* Interactive Visualizations: Renders dual-line time-series projection charts using pandas and Streamlit's native charting to clearly map out the "inflation gap" over time.
 _Note: Milo is my custom model_
 
 # Core Tech Stack
