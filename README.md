@@ -13,10 +13,10 @@ _Note: Milo is my custom model_
 
 # Core Tech Stack
 
-• Frontend & Dashboard: Streamlit
-• AI Framework: LangChain / ChatOllama
-• Data Processing: Pandas
-• Web Scraping: Requests & BeautifulSoup4
+* Frontend & Dashboard: Streamlit
+* AI Framework: LangChain / ChatOllama
+* Data Processing: Pandas
+* Web Scraping: Requests & BeautifulSoup4
 
 
 # Front-end Quick Glance
