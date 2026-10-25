@@ -9,7 +9,7 @@ Local AI Wealth Planner & Interactive Visualiser is a privacy-first, locally hos
 * Safe Withdrawal Rate (SWR) Simulator: Models monthly passive income targets using customizable SWR limits and flags long-term nest egg sustainability.
 * Interactive Visualisations: Renders dual-line time-series projection charts using pandas and Streamlit's native charting to clearly map out the "inflation gap" over time.
 
-_Note: Milo is my custom model_
+_Note: Milo:latest is my custom model._
 
 # Core Tech Stack
 
