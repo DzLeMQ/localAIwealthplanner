@@ -20,7 +20,7 @@ It is completely free and secured.
 
 
 
-Landing Page
+# Landing Page
 All parameters are default with redefine values/rates but they are interactively changed by users.
 The inflation and interest rates are real-time rates which are scrapped from RBA & an Australian financial institute respectively (refer to Note info. under the page title)
 <img width="1258" height="681" alt="image" src="https://github.com/user-attachments/assets/006d2c94-be66-445e-a359-183de5c89809" />
