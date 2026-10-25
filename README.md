@@ -27,7 +27,7 @@ _Note: Milo is my custom model_
 <img width="931" height="484" alt="image" src="https://github.com/user-attachments/assets/70297a17-a4a1-410f-82d7-779a36109480" />
 
 ## ⚠ Disclaimer & Risk Warning
-I developed this strictly for educational purposes. Projections are simulated and do not guarantee future results. Users are responsible for evaluating financial risks.
+I developed this strictly for educational purposes and use it as my own personal planner. Projections are simulated and do not guarantee future results. Users are responsible for evaluating financial risks.
 
 # License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
