@@ -5,9 +5,10 @@ import requests
 from bs4 import BeautifulSoup
 from langchain_ollama import ChatOllama
 
-# live rates by scrapper
+
 st.set_page_config(page_title="Local AI Wealth Planner & Interactive Visualiser", page_icon="📊", layout="wide")
 
+# live rates by scrapper
 @st.cache_data(ttl=86400)  # Cache metrics for 24 hours to maximize performance
 def fetch_live_au_macro_metrics():
     """
@@ -43,6 +44,22 @@ macro_data = fetch_live_au_macro_metrics()
 live_inflation = macro_data["inflation"]
 live_highest_rate = macro_data["highest_rate"]
 
+st.markdown(
+    """
+    <style>
+    .block-container {
+        padding-top: 1rem !important;
+        padding-bottom: 0rem !important;
+    }
+    header {
+        visibility: hidden;
+        height: 0px !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 st.title("📊 Local AI Wealth Planner & Interactive Visualiser")
 st.caption(
     f"Powered by LLMs — Running 100% Locally | "
@@ -51,7 +68,6 @@ st.caption(
 )
 
 # Sidebar setting
-# st.sidebar.header("🛠️Environment Settings")
 st.sidebar.markdown(
     '<span style="font-size: 16px; color: #FFD700; font-weight: 400;">🛠️Environment Settings</span>', 
     unsafe_allow_html=True
@@ -59,8 +75,6 @@ st.sidebar.markdown(
 selected_model = st.sidebar.selectbox("Select Model", ["Milo:latest", "llama:latest"], index=0)
 temperature = st.sidebar.slider("Creativity (Temperature)", min_value=0.0, max_value=1.0, value=0.8, step=0.1)
 
-# st.sidebar.header("📈 Withdrawal & Inflation Settings")
-# st.sidebar.markdown("### 📈 Withdrawal & Inflation Settings")
 st.sidebar.markdown(
     '<span style="font-size: 16px; color: #FFD700; font-weight: 400;">📈 Withdrawal & Inflation Settings</span>', 
     unsafe_allow_html=True
@@ -236,10 +250,9 @@ if st.button("⚡ Generate Strategic Growth Plan", type="primary", key="growth_p
 
                
                 st.write("")
-                st.write("")
                 st.divider() 
                 st.warning(
-                    "⚠️ **Disclaimer & Risk Warning:** This application is powered by a local model "  
+                    "⚠️ **Disclaimer & Risk Warning:** This application is powered by a local large language model "  
                     "and was built strictly for my personal wealth "
                     "planning, and educational purposes. All projections are simulated, based on hypothetical models, and do not guarantee future results. "
                     "Anyone running this code or evaluating these models must independently verify the logic. "
@@ -247,4 +260,28 @@ if st.button("⚡ Generate Strategic Growth Plan", type="primary", key="growth_p
                     "financial risks before making investment decisions."
                 )
         except Exception as e:
-            st.error(f"An unexpected runtime error occurred inside the local execution pipeline: {str(e)}")
+            # st.error(f"An unexpected runtime error occurred inside the local execution pipeline: {str(e)}")
+             # If any error occurs (e.g., ConnectionRefusedError, ModuleNotFoundError),
+            # intercept it and show a beautiful warning message instead of a crash screen.
+            st.error("⚠️ **This application requires a local environment to run.**")
+            
+            st.markdown("""
+            ### Why am I seeing this?
+            This app is currently running on **Streamlit Community Cloud**, which does not have access to your local computer's hardware or locally installed language models (like Ollama, Llama.cpp, or LM Studio).
+            
+            ### How to run this app locally:
+            1. **Clone the repository** to your local machine.
+            2. **Install the requirements** inside your virtual environment:
+            ```bash
+            pip install -r requirements.txt
+            ```
+            3. **Make sure your local LLM server is running** (e.g., run `ollama run llama3`).
+            4. **Launch the app locally** using your terminal:
+            ```bash
+            streamlit run app.py
+            ```
+            """)
+            
+            # Optional: Hide the technical background error behind an expander for debugging
+            with st.expander("Show technical error details"):
+                st.exception(e)
