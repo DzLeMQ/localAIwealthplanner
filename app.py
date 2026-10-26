@@ -282,6 +282,4 @@ if st.button("⚡ Generate Strategic Growth Plan", type="primary", key="growth_p
             ```
             """)
             
-            # Optional: Hide the technical background error behind an expander for debugging
-            with st.expander("Show technical error details"):
-                st.exception(e)
+           
