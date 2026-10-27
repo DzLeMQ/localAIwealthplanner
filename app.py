@@ -63,7 +63,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.title("📊 Local AI Wealth Planner & Interactive Visualiser")
+st.title("📊 Local AI Wealth Planner")
 st.caption(
     f"Powered by LLMs — Running 100% Locally | "
     f"Live AU Inflation Rate: {live_inflation}% | "
@@ -72,31 +72,49 @@ st.caption(
 
 # Sidebar setting
 st.sidebar.markdown(
-    '<span style="font-size: 16px; color: #FFD700; font-weight: 400;">🛠️Environment Settings</span>', 
+    '<span style="font-size: 16px; color: #2EBB57; font-weight: 600;">🛠️Environment Settings</span>', 
     unsafe_allow_html=True
 )
 selected_model = st.sidebar.selectbox("Select Model", ["Milo:latest", "llama:latest"], index=0)
 temperature = st.sidebar.slider("Creativity (Temperature)", min_value=0.0, max_value=1.0, value=0.8, step=0.1)
 
 st.sidebar.markdown(
-    '<span style="font-size: 16px; color: #FFD700; font-weight: 400;">📈 Withdrawal & Inflation Settings</span>', 
+    '<span style="font-size: 16px; color: #2EBB57; font-weight: 600;">📈 Withdrawal & Inflation Settings</span>', 
     unsafe_allow_html=True
 )
 withdrawal_rate = st.sidebar.slider("Safe Withdrawal Rate (SWR %)", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
 inflation_rate = st.sidebar.slider("Annual Inflation Rate (%)", min_value=0.0, max_value=10.0, value=live_inflation, step=0.1)
 
+
+st.sidebar.markdown(
+    """
+    
+    """,
+    unsafe_allow_html=True,
+)
+
 st.sidebar.markdown(
     """
     <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333333;">
+            <span style="text-decoration: none; font-size: 14px; font-weight: 400; color: #228B22">
+                📊 Local AI Wealth Planner is a privacy-first wealth planner
+                  hosted entirely on your local machine. Built using Streamlit, LangChain, and Ollama,
+                    it simulates long-term portfolio growth adjusted for real-world inflation. 
+                    By integrating a local LLM, the application delivers tailored, professional 
+                    macroeconomic commentary for the Australian market as well as keeping your 
+                    financial data 100% private and safe from cloud APIs.
+            </span>
+    </div>
+
+    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333333;">
         <a href="https://github.com/DzLeMQ/localAIwealthplanner" target="_blank" 
-           style="text-decoration: none; font-size: 15px; font-weight: 600; color: #FFD700;">
+           style="text-decoration: none; font-size: 15px; font-weight: 500; color: #228B22;">
             💻 View Code on GitHub
         </a>
     </div>
     """,
     unsafe_allow_html=True
 )
-
 # 1. inflation adjusted calculation engine
 def calculate_financial_plan(starting_principal, years_to_grow, annual_growth_rate, swr_rate, inflation_rate):
     r_nominal = annual_growth_rate / 100.0
@@ -257,20 +275,19 @@ if st.button("⚡ Generate Strategic Growth Plan", type="primary", key="growth_p
                 st.warning(
                     "⚠️ **Disclaimer & Risk Warning:** This application is powered by a local large language model "  
                     "and was built strictly for my personal wealth "
-                    "planning, and educational purposes. All projections are simulated, based on hypothetical models, and do not guarantee future results. "
-                    "Anyone running this code or evaluating these models must independently verify the logic. "
+                    "planning, and educational purposes. All projections are simulated, based on hypothetical models, "
+                    "and do not guarantee future results. Anyone running this code or evaluating these models must independently verify the logic. "
                     "Users are entirely responsible for accounting for market volatility and evaluating all "
                     "financial risks before making investment decisions."
                 )
         except Exception as e:
-            # st.error(f"An unexpected runtime error occurred inside the local execution pipeline: {str(e)}")
-             # If any error occurs (e.g., ConnectionRefusedError, ModuleNotFoundError),
-            # intercept it and show a beautiful warning message instead of a crash screen.
             st.error("⚠️ **This application requires a local environment to run.**")
             
             st.markdown("""
             ### Why am I seeing this?
-            This app is currently running on **Streamlit Community Cloud**, which does not have access to your local computer's hardware or locally installed language models (like Ollama, Llama.cpp, or LM Studio).
+            This app is currently running on **Streamlit Community Cloud**, 
+            which does not have access to your local computer's hardware or 
+            locally installed language models (like Ollama, Llama.cpp, or LM Studio).
             
             ### How to run this app locally:
             1. **Clone the repository** to your local machine.
@@ -278,7 +295,7 @@ if st.button("⚡ Generate Strategic Growth Plan", type="primary", key="growth_p
             ```bash
             pip install -r requirements.txt
             ```
-            3. **Make sure your local LLM server is running** (e.g., run `ollama run llama3`).
+            3. **Make sure your local LLM server is running**.
             4. **Launch the app locally** using your terminal:
             ```bash
             streamlit run app.py
