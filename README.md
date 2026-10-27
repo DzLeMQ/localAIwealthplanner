@@ -19,12 +19,13 @@ _Note: Milo:latest is my custom model._
 * Web Scraping: Requests & BeautifulSoup4
 
 
-# Front-end Quick Glance
+# Front-end at a Glance
+
 <img width="913" height="313" alt="image" src="https://github.com/user-attachments/assets/cdbdced3-43b6-477e-9371-de1043e530e6" />
 
 <img width="925" height="314" alt="image" src="https://github.com/user-attachments/assets/66c6826d-a96c-410e-a49e-e11dce01ed80" />
 
-<img width="931" height="484" alt="image" src="https://github.com/user-attachments/assets/70297a17-a4a1-410f-82d7-779a36109480" />
+<img width="937" height="432" alt="image" src="https://github.com/user-attachments/assets/4c4273e7-3ff1-4e30-9bbe-29c783a32d32" />
 
 ## ⚠ Disclaimer & Risk Warning
 I developed this project strictly for educational purposes and use it for my own personal wealth planning. Projections are simulated and do not guarantee future results. Users are responsible for evaluating financial risks.
