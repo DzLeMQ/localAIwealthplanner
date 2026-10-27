@@ -6,7 +6,10 @@ from bs4 import BeautifulSoup
 from langchain_ollama import ChatOllama
 
 
-st.set_page_config(page_title="Local AI Wealth Planner & Interactive Visualiser", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Local AI Wealth Planner", 
+                   page_icon="📊", 
+                   layout="wide",
+                   initial_sidebar_state="expanded")
 
 # live rates by scrapper
 @st.cache_data(ttl=86400)  # Cache metrics for 24 hours to maximize performance
