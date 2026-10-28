@@ -9,29 +9,31 @@ from langchain_ollama import ChatOllama
 st.set_page_config(page_title="Local AI Wealth Planner", 
                    page_icon="📊", 
                    layout="wide",
-                   initial_sidebar_state="auto")
+                   initial_sidebar_state="")
 
 # Inject CSS to make the sidebar fluid and responsive
 st.markdown(
     """
     <style>
-    /* 1. Remove the restrictive max-width constraint on the sidebar container */
-    div[data-testid="stSidebar"] {
-        min-width: 260px !important;
-        max-width: 22vw !important;  /* Auto-scales on desktop based on window width */
-    }
-    
-    @media (max-width: 768px) {
+    /* --- 1. Desktop Mode (Screens 769px and wider) --- */
+    @media (min-width: 769px) {
         div[data-testid="stSidebar"][aria-expanded="true"] {
-            /* Scale down to 65% width so main dashboard content remains visible on the right */
-            min-width: 65vw !important;  
-            max-width: 65vw !important;
-            transform: none !important;  
+            min-width: 260px !important;
+            max-width: 22vw !important;
+        }
+    }
+
+    /* --- 2. Mobile Mode Reset (Screens 768px and under) --- */
+    @media (max-width: 768px) {
+        /* Let Streamlit manage the dynamic slide transition naturally */
+        div[data-testid="stSidebar"] {
+            min-width: 70vw !important;  
+            max-width: 70vw !important;
         }
         
-        /* Optional: Add a subtle drop-shadow effect so the sidebar visually floats over the content */
-        div[data-testid="stSidebar"] {
-            box-shadow: 5px 0px 15px rgba(0, 0, 0, 0.25) !important;
+        /* Make sure the native dark overlay background stays visible */
+        div[data-testid="stSidebarCollapseWrapper"] {
+            background-color: rgba(0, 0, 0, 0.4) !important;
         }
     }
     </style>
