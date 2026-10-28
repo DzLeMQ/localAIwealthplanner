@@ -1,5 +1,5 @@
 # Local AI Wealth Planner
-Local AI Wealth Planner & Interactive Visualiser is a privacy-first, locally hosted financial forecasting and analysis web application. Built using Streamlit, LangChain, and Ollama, the application allows users to simulate long-term portfolio growth while strictly accounting for real-world inflation. Unlike traditional calculators, it integrates a local Large Language Model (LLM) to deliver automated, professional-grade macroeconomic commentary tailored to the Australian market without exposing sensitive financial data to cloud-based APIs.
+Local AI Wealth Planner is a privacy-first, locally hosted financial forecasting and analysis web application. Built using Streamlit, LangChain, and Ollama, the application allows users to simulate long-term portfolio growth while strictly accounting for real-world inflation. Unlike traditional calculators, it integrates a local Large Language Model (LLM) to deliver automated, professional-grade macroeconomic commentary tailored to the Australian market without exposing sensitive financial data to cloud-based APIs.
 
 # Key Features
 
@@ -20,6 +20,8 @@ _Note: Milo:latest is my custom model._
 
 
 # Front-end at a Glance
+
+<a href="https://localaiwealthplanner-9ssnpxappumba3bmbbpwb7v.streamlit.app/">Local AI Wealth Planner</a>
 
 <img width="913" height="313" alt="image" src="https://github.com/user-attachments/assets/cdbdced3-43b6-477e-9371-de1043e530e6" />
 
