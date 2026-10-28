@@ -21,11 +21,17 @@ st.markdown(
         max-width: 22vw !important;  /* Auto-scales on desktop based on window width */
     }
     
-    /* 2. Seamless mobile adjustment (Screens under 768px wide) */
     @media (max-width: 768px) {
+        div[data-testid="stSidebar"][aria-expanded="true"] {
+            /* Scale down to 65% width so main dashboard content remains visible on the right */
+            min-width: 65vw !important;  
+            max-width: 65vw !important;
+            transform: none !important;  
+        }
+        
+        /* Optional: Add a subtle drop-shadow effect so the sidebar visually floats over the content */
         div[data-testid="stSidebar"] {
-            min-width: 85vw !important; /* Spans smoothly across mobile screens when opened */
-            max-width: 85vw !important;
+            box-shadow: 5px 0px 15px rgba(0, 0, 0, 0.25) !important;
         }
     }
     </style>
