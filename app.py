@@ -15,7 +15,6 @@ st.set_page_config(page_title="Local AI Wealth Planner",
 st.markdown(
     """
     <style>
-    /* --- 1. Desktop Mode (Screens 769px and wider) --- */
     @media (min-width: 769px) {
         div[data-testid="stSidebar"][aria-expanded="true"] {
             min-width: 260px !important;
@@ -23,7 +22,6 @@ st.markdown(
         }
     }
 
-    /* --- 2. Mobile Mode Reset (Screens 768px and under) --- */
     @media (max-width: 768px) {
         /* Let Streamlit manage the dynamic slide transition naturally */
         div[data-testid="stSidebar"] {
