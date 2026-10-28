@@ -9,7 +9,7 @@ from langchain_ollama import ChatOllama
 st.set_page_config(page_title="Local AI Wealth Planner", 
                    page_icon="📊", 
                    layout="wide",
-                   initial_sidebar_state="")
+                   initial_sidebar_state="auto")
 
 # Inject CSS to make the sidebar fluid and responsive
 st.markdown(
