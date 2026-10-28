@@ -9,8 +9,82 @@ from langchain_ollama import ChatOllama
 st.set_page_config(page_title="Local AI Wealth Planner", 
                    page_icon="📊", 
                    layout="wide",
-                   initial_sidebar_state="expanded")
+                   initial_sidebar_state="auto")
 
+# Inject CSS to make the sidebar fluid and responsive
+st.markdown(
+    """
+    <style>
+    /* 1. Remove the restrictive max-width constraint on the sidebar container */
+    div[data-testid="stSidebar"] {
+        min-width: 260px !important;
+        max-width: 22vw !important;  /* Auto-scales on desktop based on window width */
+    }
+    
+    /* 2. Seamless mobile adjustment (Screens under 768px wide) */
+    @media (max-width: 768px) {
+        div[data-testid="stSidebar"] {
+            min-width: 85vw !important; /* Spans smoothly across mobile screens when opened */
+            max-width: 85vw !important;
+        }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+st.markdown(
+    """
+    <style>
+
+    div[data-testid="stSidebar"] {
+        /* Smooth background tint to distinguish from main app background */
+        background-color: #F8F9FA;
+    }
+
+    div[data-testid="stSidebar"] label p {
+        font-weight: 600 !important;
+        color: #1E293B !important;
+        font-size: 14px !important;
+    }
+
+    div[data-testid="stSidebar"] div[data-testid="stSlider"] div[role="slider"] {
+        background-color: #CC3300 !important;
+        border: 2px solid #CC3300 !important;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15);
+    }
+    div[data-testid="stSidebar"] div[data-testid="stSlider"] div[data-testid="stSliderTrack"] > div > div {
+        background-color: #CC3300 !important; /* Filled track color */
+    }
+
+    div[data-testid="stSidebar"] div[data-testid="stNumberInput"] input {
+        border-radius: 6px !important;
+        border: 1px solid #CBD5E1 !important;
+        padding: 0.4rem 0.6rem !important;
+        font-size: 15px !important;
+    }
+    div[data-testid="stSidebar"] div[data-testid="stNumberInput"] input:focus {
+        border-color: #CC3300 !important;
+        box-shadow: 0 0 0 1px #CC3300 !important;
+    }
+
+    /* --- Responsive Mobile Viewport Enhancements --- */
+    @media (max-width: 768px) {
+        /* Expand spacing between input components for easy touch interactions */
+        div[data-testid="stSidebar"] div[data-testid="stNumberInput"], 
+        div[data-testid="stSidebar"] div[data-testid="stSlider"] {
+            margin-bottom: 1.25rem !important;
+        }
+        
+        /* Enforce large font sizes to prevent automatic iOS safari viewport zooming */
+        div[data-testid="stSidebar"] div[data-testid="stNumberInput"] input {
+            font-size: 16px !important;
+            padding: 0.6rem 0.8rem !important;
+        }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 # live rates by scrapper
 @st.cache_data(ttl=86400)  # Cache metrics for 24 hours to maximize performance
 def fetch_live_au_macro_metrics():
@@ -172,7 +246,7 @@ def calculate_financial_plan(starting_principal, years_to_grow, annual_growth_ra
 st.write("### 📈 Plan Your Monthly Income Target")
 st.write("Enter your metrics below to trigger your local AI engine and compounding calculations:")
 
-principle_col, year_col, growth_col = st.columns(3)
+principle_col, year_col, growth_col = st.columns(3, gap="small")
 with principle_col:
     principal = st.number_input("Starting Principal ($)", min_value=0.0, value=200000.0, step=10000.0)
 with year_col:
@@ -182,14 +256,18 @@ with growth_col:
 
 # 3. processing pipeline
 
-st.markdown(    """
+st.markdown(
+    """
     <style>
-    .st-key-growth_plan_btn button, .stkey-growth_plan_btn button {
+    /* Target only the button that contains your specific key context */
+    div[data-testid="stButton"] > button[key="growth_plan_btn"] {
         background-color: #CC3300 !important;
         color: white !important;
+        border-radius: 4px;
     }
-    .st-key-growth_plan_btn button:hover, .stkey-growth_plan_btn button:hover {
+    div[data-testid="stButton"] > button[key="growth_plan_btn"]:hover {
         background-color: #CC8800 !important;
+        color: white !important;
     }
     </style>
     """,
@@ -233,7 +311,7 @@ if st.button("⚡ Generate Strategic Growth Plan", type="primary", key="growth_p
                 ("human", user_prompt)
             ]).content
             
-            analyse_col, chart_col = st.columns(2)
+            analyse_col, chart_col = st.columns(2, gap="medium")
             
             with analyse_col:
                 st.success("### 📊 Inflation-Adjusted Milestones")
@@ -244,36 +322,29 @@ if st.button("⚡ Generate Strategic Growth Plan", type="primary", key="growth_p
                 
                 st.write("### 🤖 Local AI Strategic Commentary")
                 st.write(ai_analysis)
-                    
+
             with chart_col:
-                st.write("### 📈 Real vs. Nominal Growth Projections")                
-                                
-                # Convert your raw calculation tracking points into a Pandas DataFrame
+                st.write("### 📈 Real vs. Nominal Growth Projections")
+
                 raw_df = pd.DataFrame(metrics["chart_points"])
-                
                 chart_df = pd.DataFrame({
                     "Year": raw_df["Year"],
                     "Nominal Value": raw_df["Nominal Value (Face Value)"],
                     "Today's Buying Power": raw_df["Real Value (Today's Buying Power)"]
-              
-                })
-                
-                # Set your investment timeline index
-                chart_df = chart_df.set_index("Year")
-                
-                # Plot the native line chart safely
+                }).set_index("Year")
+
                 st.line_chart(
                     chart_df,
-                    x_label="Investment Timeline (Years)",
-                    y_label="Portfolio Balance ($ AUD)",
-                    color=["#ff4b4b", "#1f77b4"] 
+                    x_label="Timeline (Years)",
+                    y_label="Balance ($ AUD)",
+                     color=["#FF4B4B", "#1F77B4"],     
+                    height=320
                 )
 
-               
                 st.write("")
-                st.divider() 
+                st.divider()
                 st.warning(
-                    "⚠️ **Disclaimer & Risk Warning:** This application is powered by a local large language model "  
+                    "⚠️ **Disclaimer & Risk Warning:** This application is powered by a local large language model "
                     "and was built strictly for my personal wealth "
                     "planning, and educational purposes. All projections are simulated, based on hypothetical models, "
                     "and do not guarantee future results. Anyone running this code or evaluating these models must independently verify the logic. "
