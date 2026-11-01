@@ -307,7 +307,7 @@ if st.button("⚡ Generate Strategic Growth Plan", type="primary", key="growth_p
             an environment where it is strictly restricted from processing your 
             personal financial data or banking profiles to prevent any public cloud exposure.
 
-            **How to safely run your wealth planner:**
+            **How to safely run your Local AI Wealth Planner:**
             Follow the instructions below to quickly launch this secure workspace 
             on your own local device. Once configured, your private AI financial 
             strategist will be ready to help you map out your wealth generation plan!
