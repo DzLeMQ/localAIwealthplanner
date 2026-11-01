@@ -4,6 +4,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from langchain_ollama import ChatOllama
+import re
 
 
 st.set_page_config(page_title="Local AI Wealth Planner", 
@@ -41,66 +42,60 @@ st.markdown(
 st.markdown(
     """
     <style>
-
-    div[data-testid="stSidebar"] {
-        /* Smooth background tint to distinguish from main app background */
-        background-color: #F8F9FA;
+    /* Global responsiveness and layout adjustments */
+    .block-container {
+        padding: 1.5rem !important;
     }
-
-    div[data-testid="stSidebar"] label p {
-        font-weight: 600 !important;
-        color: #1E293B !important;
-        font-size: 14px !important;
-    }
-
-    div[data-testid="stSidebar"] div[data-testid="stSlider"] div[role="slider"] {
-        background-color: #CC3300 !important;
-        border: 2px solid #CC3300 !important;
-        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15);
-    }
-    div[data-testid="stSidebar"] div[data-testid="stSlider"] div[data-testid="stSliderTrack"] > div > div {
-        background-color: #CC3300 !important; /* Filled track color */
-    }
-
-    div[data-testid="stSidebar"] div[data-testid="stNumberInput"] input {
-        border-radius: 6px !important;
-        border: 1px solid #CBD5E1 !important;
-        padding: 0.4rem 0.6rem !important;
-        font-size: 15px !important;
-    }
-    div[data-testid="stSidebar"] div[data-testid="stNumberInput"] input:focus {
-        border-color: #CC3300 !important;
-        box-shadow: 0 0 0 1px #CC3300 !important;
-    }
-
-    /* --- Responsive Mobile Viewport Enhancements --- */
+    
     @media (max-width: 768px) {
-        /* Expand spacing between input components for easy touch interactions */
-        div[data-testid="stSidebar"] div[data-testid="stNumberInput"], 
-        div[data-testid="stSidebar"] div[data-testid="stSlider"] {
-            margin-bottom: 1.25rem !important;
+        .block-container {
+            padding: 1rem !important;
         }
-        
-        /* Enforce large font sizes to prevent automatic iOS safari viewport zooming */
-        div[data-testid="stSidebar"] div[data-testid="stNumberInput"] input {
-            font-size: 16px !important;
-            padding: 0.6rem 0.8rem !important;
-        }
+    }
+    
+    /* Hide the top header bar but KEEP the mobile sidebar toggle button visible */
+    header {
+        visibility: hidden;
+        height: 0px !important;
+    }
+    
+    /* Android & iOS Mobile Sidebar Toggle Fix */
+    div[data-testid="stSidebarCollapseWrapper"] {
+        visibility: visible !important;
+        position: fixed !important;
+        top: 10px !important;
+        left: 10px !important;
+        z-index: 999999 !important;
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        border-radius: 50% !important;
+        box-shadow: 0px 2px 8px rgba(0,0,0,0.15) !important;
+        width: 44px !important;
+        height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* Sidebar layout and styling */
+    div[data-testid="stSidebar"] {
+        background-color: #F8F9FA;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
 # live rates by scrapper
-@st.cache_data(ttl=86400)  # Cache metrics for 24 hours to maximize performance
-def fetch_live_au_macro_metrics():
+@st.cache_data(ttl=3600)  # cache 1 hour to ensure rapid updates when milestones land
+def fetch_live_au_rates():
     """
     Scrapes the official RBA homepage for live inflation data 
     and returns a combined payload for national macro benchmarks.
     """
+    # Fallback/Default values if the RBA website completely drops connection
     metrics = {
-        "inflation": 4.0,       # Current RBA Target Cycle baseline
-        "highest_rate": 6.25    # Top Australian High-Interest Variable Yield (ING/Revolut)
+        "inflation": 4.3,       # Updated to current baseline
+        "cash_rate": 4.60,      # Current RBA cash rate
+        "highest_rate": 6.25    # Top au highest-interest rate (ING/Revolut)
     }
     try:
         url = "https://rba.gov.au"
@@ -108,23 +103,36 @@ def fetch_live_au_macro_metrics():
         
         response = requests.get(url, headers=headers, timeout=5)
         if response.status_code == 200:
-            soup = BeautifulSoup(response.text, 'html.parser')
+            soup = BeautifulSoup(response.text, 'html.parser')             
             
-            for container in soup.find_all(text=True):
-                if "Consumer Price Index" in container:
-                    parent = container.parent
-                    sibling_text = parent.find_next_sibling() or parent.find_next()
-                    if sibling_text:
-                        clean_rate = sibling_text.text.replace('%', '').strip()
-                        metrics["inflation"] = float(clean_rate)
-                        break
+            # Find all potential text elements to parse metrics independently
+            for block in soup.find_all(['h2', 'h3', 'p', 'div', 'td']):
+                if block.text:
+                    # 1. Target the Inflation Rate using the specific structural CPI indicator label
+                    if "Consumer Price Index" in block.text or "CPI" in block.text:
+                        parent_box = block.find_parent()
+                        if parent_box:
+                            match = re.search(r'(\d+\.\d+)\s*%', parent_box.get_text())
+                            if match:
+                                metrics["inflation"] = float(match.group(1))
+                                
+                    # 2. Target the Cash Rate using its explicit central bank label
+                    if "Cash Rate" in block.text:
+                        parent_box = block.find_parent()
+                        if parent_box:
+                            match = re.search(r'(\d+\.\d+)\s*%', parent_box.get_text())
+                            if match:
+                                metrics["cash_rate"] = float(match.group(1))
+                                
         return metrics
     except Exception:
-        return metrics  
+        return metrics
 
 # Load live rates
-macro_data = fetch_live_au_macro_metrics()
+macro_data = fetch_live_au_rates()
 live_inflation = macro_data["inflation"]
+#Debugging output for live inflation rate
+print(f"Live AU Inflation Rate: {live_inflation}%")
 live_highest_rate = macro_data["highest_rate"]
 
 st.markdown(
