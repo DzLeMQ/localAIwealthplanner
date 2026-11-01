@@ -191,7 +191,6 @@ with year_col:
 with growth_col:
     growth = st.number_input("Expected Annual Return (%)", min_value=0.0, max_value=30.0, value=live_highest_rate, step=0.1)
 
-
 st.markdown(
     """
     <style>
