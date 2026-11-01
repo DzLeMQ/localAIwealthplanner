@@ -31,7 +31,6 @@ st.html(
         background-color: transparent !important;
     }
     
-    /* 2. Hide only the deployment status button and platform menus */
     header[data-testid="stHeader"] div[data-testid="stToolbar"] {
         visibility: hidden !important;
         display: none !important;
