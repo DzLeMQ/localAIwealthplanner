@@ -14,9 +14,7 @@ from bs4 import BeautifulSoup
 from langchain_ollama import ChatOllama
 import re
 
-# ==============================================================================
-# 1. CORE PAGE CONFIGURATION & RESPONSIBLE GLOBAL CSS
-# ==============================================================================
+# Configureation and responsive css
 st.set_page_config(
     page_title="Local AI Wealth Planner", 
     page_icon="📊", 
@@ -24,62 +22,24 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Consolidated Custom Responsive CSS Overrides (Completely collapses and hides sidebar elements)
-st.markdown(
-    """
-    <style>
-    /* Nuke native sidebar remnants and top menu utilities globally */
-    section[data-testid="stSidebar"], 
-    div[data-testid="stSidebarCollapseWrapper"], 
-    header div[data-testid="stToolbar"] { 
-        display: none !important; 
-        visibility: hidden !important; 
-    }
-    
-    /* Global responsive content workspace paddings */
-    .block-container {
-        padding: 1.5rem !important;
-    }
-    @media (max-width: 768px) {
-        .block-container {
-            padding: 1rem !important;
-        }
-    }
-    
-    /* Target only the primary execution action button framework explicitly */
-    div[data-testid="stButton"] > button[key="growth_plan_btn"] {
-        background-color: #CC3300 !important;
-        color: white !important;
-        border-radius: 4px;
-        width: 100% !important;
-    }
-    div[data-testid="stButton"] > button[key="growth_plan_btn"]:hover {
-        background-color: #CC8800 !important;
-        color: white !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+
 
 # Initialize Session State tracking layer for layout state toggle
 if "show_in_page_settings" not in st.session_state:
     st.session_state.show_in_page_settings = False
 
-# ==============================================================================
-# 2. FIXED HISTORIC RBA MACROINDICATORS WEB SCRAPER
-# ==============================================================================
+# Web scrapper for rates
 @st.cache_data(ttl=3600)  # cache 1 hour to ensure rapid updates when milestones land
 def fetch_live_au_rates():
     """
     Scrapes the official RBA homepage for live inflation data 
     and returns a combined payload for national macro benchmarks.
     """
-    # Fallback/Default values if the RBA website completely drops connection
+    # Default values if the RBA website not reachable
     metrics = {
-        "inflation": 4.3,       # Current baseline
-        "cash_rate": 4.60,      # Current RBA cash rate
-        "highest_rate": 6.25    # Top au highest-interest rate (ING/Revolut)
+        "inflation": 4.3,      
+        "cash_rate": 4.60,      
+        "highest_rate": 6.25    #au highest-interest rate (ING/Revolut)
     }
     try:
         url = "https://rba.gov.au"
@@ -88,27 +48,18 @@ def fetch_live_au_rates():
         response = requests.get(url, headers=headers, timeout=5)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')             
-            
-            # Find all potential text elements to parse metrics independently
-            for block in soup.find_all(['h2', 'h3', 'p', 'div', 'td', 'span', 'strong']):
-                if block.text:
-                    # 1. Target the Inflation Rate using the specific text node content directly
-                    if "Consumer Price Index" in block.text or "CPI" in block.text:
-                        text_content = block.get_text()
-                        if not re.search(r'\d+\.\d+', text_content) and block.find_next():
-                            text_content = block.find_next().get_text()
-                        match = re.search(r'(\d+\.\d+)\s*%', text_content)
-                        if match:
-                            metrics["inflation"] = float(match.group(1))
-                                
-                    # 2. Target the Cash Rate using its explicit central bank label
-                    if "Cash Rate" in block.text:
-                        text_content = block.get_text()
-                        if not re.search(r'\d+\.\d+', text_content) and block.find_next():
-                            text_content = block.find_next().get_text()
-                        match = re.search(r'(\d+\.\d+)\s*%', text_content)
-                        if match:
-                            metrics["cash_rate"] = float(match.group(1))
+            import re
+            for label in soup.find_all(string=re.compile(r'Consumer Price Index|Cash Rate')):
+                parent = label.parent
+                sibling = parent.find_next(string=re.compile(r'\d+\.\d+\s*%'))
+                if sibling:
+                    match = re.search(r'(\d+\.\d+)\s*%', sibling)
+                    if match:
+                        val = float(match.group(1))
+                        if "Consumer Price Index" in label or "CPI" in label:
+                            metrics["inflation"] = val
+                        elif "Cash Rate" in label:
+                            metrics["cash_rate"] = val
                                 
         return metrics
     except Exception:
@@ -117,19 +68,18 @@ def fetch_live_au_rates():
 # Load live rates
 macro_data = fetch_live_au_rates()
 live_inflation = macro_data["inflation"]
+print(f"Live AU Inflation Rate: {live_inflation}%")
 live_cash_rate = macro_data["cash_rate"]
 live_highest_rate = macro_data["highest_rate"]
 
-# ==============================================================================
-# 3. INTERFACE TITLES AND SMART BACKUP DRIVER TOGGLE
-# ==============================================================================
+# Interface and layout
 st.title("📊 Local AI Wealth Planner")
 
 st.markdown("---")
-col_title, col_btn = st.columns([3, 1])
+col_title, col_btn = st.columns([4, 1])
 with col_title:
     st.caption(
-        f"Powered by LLMs — Running 100% Locally | "
+        f"Powered by AI — Running 100% Locally - Built with local LLMs | "
         f"Live AU Inflation Rate: {live_inflation}% | "
         f"RBA Cash Rate: {live_cash_rate}% | "
         f"Peak AU Savings Yield: {live_highest_rate}% p.a."
@@ -138,12 +88,10 @@ with col_btn:
     if st.button("⚙️ Open / Close Settings", use_container_width=True):
         st.session_state.show_in_page_settings = not st.session_state.show_in_page_settings
 
-# ==============================================================================
-# 4. CONDITIONAL MAIN-SCREEN PARAMETER SETTINGS DRAWER
-# ==============================================================================
+# Parameter settings
 if st.session_state.show_in_page_settings:
     with st.container(border=True):
-        st.markdown("### 🛠️ Strategic Environment Configurations")
+        st.markdown("#### 🛠️ Strategic Environment Configurations")
         col_ctrl1, col_ctrl2 = st.columns(2)
         with col_ctrl1:
             selected_model = st.selectbox("Select Model Options", ["Milo:latest", "llama:latest"], index=0, key="model_main")
@@ -162,7 +110,7 @@ if st.session_state.show_in_page_settings:
             """, unsafe_allow_html=True
         )
 else:
-    # Explicit fallbacks to prevent variable runtime name breaks when settings panel remains collapsed
+    # fallbacks to prevent variable runtime name breaks when settings panel remains collapsed
     selected_model = "Milo:latest"
     temperature = 0.8
     withdrawal_rate = 5.0
@@ -170,9 +118,7 @@ else:
 
 st.markdown("---")
 
-# ==============================================================================
-# 5. INFLATION ADJUSTED CALCULATION ENGINE
-# ==============================================================================
+# Calculation engine
 def calculate_financial_plan(starting_principal, years_to_grow, annual_growth_rate, swr_rate, inflation_rate):
     r_nominal = annual_growth_rate / 100.0
     r_real = (annual_growth_rate - inflation_rate) / 100.0
@@ -222,17 +168,15 @@ def calculate_financial_plan(starting_principal, years_to_grow, annual_growth_ra
         "chart_points": yearly_data
     }
 
-# ==============================================================================
-# 6. DASHBOARD FORM PARAMETERS AND CALCULATION PIPELINE RUNNER
-# ==============================================================================
-st.write("### 📈 Plan Your Monthly Income Target")
+# Dashboard - parameters and calculation pipeline runner
+st.write("#### 📈 Plan Your Monthly Income Target")
 st.write("Enter your metrics below to trigger your local AI engine and compounding calculations:")
 
 principle_col, year_col, growth_col = st.columns(3, gap="small")
 with principle_col:
-    principal = st.number_input("Starting Principal ($)", min_value=0.0, value=200000.0, step=10000.0)
+    principal = st.number_input("Starting Principal ($)", min_value=0.0, value=150000.0, step=10000.0)
 with year_col:
-    years = st.number_input("Years to Grow", min_value=1, max_value=50, value=10)
+    years = st.number_input("Years to Grow", min_value=1, max_value=50, value=15)
 with growth_col:
     growth = st.number_input("Expected Annual Return (%)", min_value=0.0, max_value=30.0, value=live_highest_rate, step=0.1)
 
@@ -336,13 +280,27 @@ if st.button("⚡ Generate Strategic Growth Plan", type="primary", key="growth_p
             st.error("⚠️ **This application requires a local environment to run.**")
             
             st.markdown("""
-            ### Why am I seeing this?
-            This app is currently running on **Streamlit Community Cloud**, 
-            which does not have access to your local computer's hardware or 
-            locally installed language models (like Ollama, Llama.cpp, or LM Studio).
+            ### 🔒 Privacy Protection Active: Local Environment Required
+
+            **Why are you seeing this message?**
+            To guarantee absolute data privacy, this application is engineered to 
+            run exclusively on your local machine. 
+
+            It is currently deployed on the **Streamlit Community Cloud**, 
+            an environment where it is strictly restricted from processing your 
+            personal financial data or banking profiles to prevent any public cloud exposure.
+
+            **How to safely run your wealth planner:**
+            Follow the instructions below to quickly launch this secure workspace 
+            on your own local device. Once configured, your private AI financial 
+            strategist will be ready to help you map out your wealth generation plan!
             
             ### How to run this app locally:
-            1. **Clone the repository** to your local machine.
+            1.  
+            **<a href="https://github.com/DzLeMQ/localAIwealthplanner" target="_blank" 
+           style="text-decoration: none; font-size: 15px; font-weight: 500; color: #228B22;">
+            💻 Clone the repository
+            </a>** to your local machine.
             2. **Install the requirements** inside your virtual environment:
             ```bash
             pip install -r requirements.txt
