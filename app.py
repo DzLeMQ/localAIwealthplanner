@@ -73,9 +73,9 @@ live_cash_rate = macro_data["cash_rate"]
 live_highest_rate = macro_data["highest_rate"]
 
 # Interface and layout
-st.title("📊 Local AI Wealth Planner")
+st.subheader("📊 Local AI Wealth Planner")
 
-st.markdown("---")
+# st.markdown("---")
 col_title, col_btn = st.columns([4, 1])
 with col_title:
     st.caption(
@@ -91,7 +91,7 @@ with col_btn:
 # Parameter settings
 if st.session_state.show_in_page_settings:
     with st.container(border=True):
-        st.markdown("#### 🛠️ Strategic Environment Configurations")
+        st.markdown("#### 🛠️ Environment Configurations")
         col_ctrl1, col_ctrl2 = st.columns(2)
         with col_ctrl1:
             selected_model = st.selectbox("Select Model Options", ["Milo:latest", "llama:latest"], index=0, key="model_main")
