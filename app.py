@@ -6,85 +6,69 @@ from bs4 import BeautifulSoup
 from langchain_ollama import ChatOllama
 import re
 
+import streamlit as st
+import json
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+from langchain_ollama import ChatOllama
+import re
 
-st.set_page_config(page_title="Local AI Wealth Planner", 
-                   page_icon="📊", 
-                   layout="wide",
-                   initial_sidebar_state="expanded")
-
-# Inject CSS to make the sidebar fluid and responsive
-st.markdown(
-    """
-    <style>
-    @media (min-width: 769px) {
-        div[data-testid="stSidebar"][aria-expanded="true"] {
-            min-width: 260px !important;
-            max-width: 22vw !important;
-        }
-    }
-
-    @media (max-width: 768px) {
-        /* Let Streamlit manage the dynamic slide transition naturally */
-        div[data-testid="stSidebar"] {
-            min-width: 70vw !important;  
-            max-width: 70vw !important;
-        }
-        
-        /* Make sure the native dark overlay background stays visible */
-        div[data-testid="stSidebarCollapseWrapper"] {
-            background-color: rgba(0, 0, 0, 0.4) !important;
-        }
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
+# ==============================================================================
+# 1. CORE PAGE CONFIGURATION & RESPONSIBLE GLOBAL CSS
+# ==============================================================================
+st.set_page_config(
+    page_title="Local AI Wealth Planner", 
+    page_icon="📊", 
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
+
+# Consolidated Custom Responsive CSS Overrides (Completely collapses and hides sidebar elements)
 st.markdown(
     """
     <style>
-    /* Global responsiveness and layout adjustments */
+    /* Nuke native sidebar remnants and top menu utilities globally */
+    section[data-testid="stSidebar"], 
+    div[data-testid="stSidebarCollapseWrapper"], 
+    header div[data-testid="stToolbar"] { 
+        display: none !important; 
+        visibility: hidden !important; 
+    }
+    
+    /* Global responsive content workspace paddings */
     .block-container {
         padding: 1.5rem !important;
     }
-    
     @media (max-width: 768px) {
         .block-container {
             padding: 1rem !important;
         }
     }
     
-    /* Hide the top header bar but KEEP the mobile sidebar toggle button visible */
-    header {
-        visibility: hidden;
-        height: 0px !important;
+    /* Target only the primary execution action button framework explicitly */
+    div[data-testid="stButton"] > button[key="growth_plan_btn"] {
+        background-color: #CC3300 !important;
+        color: white !important;
+        border-radius: 4px;
+        width: 100% !important;
     }
-    
-    /* Android & iOS Mobile Sidebar Toggle Fix */
-    div[data-testid="stSidebarCollapseWrapper"] {
-        visibility: visible !important;
-        position: fixed !important;
-        top: 10px !important;
-        left: 10px !important;
-        z-index: 999999 !important;
-        background-color: rgba(255, 255, 255, 0.9) !important;
-        border-radius: 50% !important;
-        box-shadow: 0px 2px 8px rgba(0,0,0,0.15) !important;
-        width: 44px !important;
-        height: 44px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-
-    /* Sidebar layout and styling */
-    div[data-testid="stSidebar"] {
-        background-color: #F8F9FA;
+    div[data-testid="stButton"] > button[key="growth_plan_btn"]:hover {
+        background-color: #CC8800 !important;
+        color: white !important;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
-# live rates by scrapper
+
+# Initialize Session State tracking layer for layout state toggle
+if "show_in_page_settings" not in st.session_state:
+    st.session_state.show_in_page_settings = False
+
+# ==============================================================================
+# 2. FIXED HISTORIC RBA MACROINDICATORS WEB SCRAPER
+# ==============================================================================
 @st.cache_data(ttl=3600)  # cache 1 hour to ensure rapid updates when milestones land
 def fetch_live_au_rates():
     """
@@ -93,7 +77,7 @@ def fetch_live_au_rates():
     """
     # Fallback/Default values if the RBA website completely drops connection
     metrics = {
-        "inflation": 4.3,       # Updated to current baseline
+        "inflation": 4.3,       # Current baseline
         "cash_rate": 4.60,      # Current RBA cash rate
         "highest_rate": 6.25    # Top au highest-interest rate (ING/Revolut)
     }
@@ -106,23 +90,25 @@ def fetch_live_au_rates():
             soup = BeautifulSoup(response.text, 'html.parser')             
             
             # Find all potential text elements to parse metrics independently
-            for block in soup.find_all(['h2', 'h3', 'p', 'div', 'td']):
+            for block in soup.find_all(['h2', 'h3', 'p', 'div', 'td', 'span', 'strong']):
                 if block.text:
-                    # 1. Target the Inflation Rate using the specific structural CPI indicator label
+                    # 1. Target the Inflation Rate using the specific text node content directly
                     if "Consumer Price Index" in block.text or "CPI" in block.text:
-                        parent_box = block.find_parent()
-                        if parent_box:
-                            match = re.search(r'(\d+\.\d+)\s*%', parent_box.get_text())
-                            if match:
-                                metrics["inflation"] = float(match.group(1))
+                        text_content = block.get_text()
+                        if not re.search(r'\d+\.\d+', text_content) and block.find_next():
+                            text_content = block.find_next().get_text()
+                        match = re.search(r'(\d+\.\d+)\s*%', text_content)
+                        if match:
+                            metrics["inflation"] = float(match.group(1))
                                 
                     # 2. Target the Cash Rate using its explicit central bank label
                     if "Cash Rate" in block.text:
-                        parent_box = block.find_parent()
-                        if parent_box:
-                            match = re.search(r'(\d+\.\d+)\s*%', parent_box.get_text())
-                            if match:
-                                metrics["cash_rate"] = float(match.group(1))
+                        text_content = block.get_text()
+                        if not re.search(r'\d+\.\d+', text_content) and block.find_next():
+                            text_content = block.find_next().get_text()
+                        match = re.search(r'(\d+\.\d+)\s*%', text_content)
+                        if match:
+                            metrics["cash_rate"] = float(match.group(1))
                                 
         return metrics
     except Exception:
@@ -131,79 +117,62 @@ def fetch_live_au_rates():
 # Load live rates
 macro_data = fetch_live_au_rates()
 live_inflation = macro_data["inflation"]
-#Debugging output for live inflation rate
-print(f"Live AU Inflation Rate: {live_inflation}%")
+live_cash_rate = macro_data["cash_rate"]
 live_highest_rate = macro_data["highest_rate"]
 
-st.markdown(
-    """
-    <style>
-    .block-container {
-        padding-top: 1rem !important;
-        padding-bottom: 0rem !important;
-    }
-    header {
-        visibility: hidden;
-        height: 0px !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
+# ==============================================================================
+# 3. INTERFACE TITLES AND SMART BACKUP DRIVER TOGGLE
+# ==============================================================================
 st.title("📊 Local AI Wealth Planner")
-st.caption(
-    f"Powered by LLMs — Running 100% Locally | "
-    f"Live AU Inflation Rate: {live_inflation}% | "
-    f"Peak AU Savings Yield: {live_highest_rate}% p.a."
-)
 
-# Sidebar setting
-st.sidebar.markdown(
-    '<span style="font-size: 16px; color: #2EBB57; font-weight: 600;">🛠️Environment Settings</span>', 
-    unsafe_allow_html=True
-)
-selected_model = st.sidebar.selectbox("Select Model", ["Milo:latest", "llama:latest"], index=0)
-temperature = st.sidebar.slider("Creativity (Temperature)", min_value=0.0, max_value=1.0, value=0.8, step=0.1)
+st.markdown("---")
+col_title, col_btn = st.columns([3, 1])
+with col_title:
+    st.caption(
+        f"Powered by LLMs — Running 100% Locally | "
+        f"Live AU Inflation Rate: {live_inflation}% | "
+        f"RBA Cash Rate: {live_cash_rate}% | "
+        f"Peak AU Savings Yield: {live_highest_rate}% p.a."
+    )
+with col_btn:
+    if st.button("⚙️ Open / Close Settings", use_container_width=True):
+        st.session_state.show_in_page_settings = not st.session_state.show_in_page_settings
 
-st.sidebar.markdown(
-    '<span style="font-size: 16px; color: #2EBB57; font-weight: 600;">📈 Withdrawal & Inflation Settings</span>', 
-    unsafe_allow_html=True
-)
-withdrawal_rate = st.sidebar.slider("Safe Withdrawal Rate (SWR %)", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
-inflation_rate = st.sidebar.slider("Annual Inflation Rate (%)", min_value=0.0, max_value=10.0, value=live_inflation, step=0.1)
+# ==============================================================================
+# 4. CONDITIONAL MAIN-SCREEN PARAMETER SETTINGS DRAWER
+# ==============================================================================
+if st.session_state.show_in_page_settings:
+    with st.container(border=True):
+        st.markdown("### 🛠️ Strategic Environment Configurations")
+        col_ctrl1, col_ctrl2 = st.columns(2)
+        with col_ctrl1:
+            selected_model = st.selectbox("Select Model Options", ["Milo:latest", "llama:latest"], index=0, key="model_main")
+            temperature = st.slider("Creativity (Temperature)", min_value=0.0, max_value=1.0, value=0.8, step=0.1, key="temp_main")
+        with col_ctrl2:
+            withdrawal_rate = st.slider("Safe Withdrawal Rate (SWR %)", min_value=1.0, max_value=10.0, value=5.0, step=0.5, key="swr_main")
+            inflation_rate = st.slider("Annual Inflation Rate (%)", min_value=0.0, max_value=10.0, value=live_inflation, step=0.1, key="inf_main")
+            
+        st.markdown(
+            """
+            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #E2E8F0;">
+                <span style="font-size: 13px; color: #228B22;">
+                    📊 <b>Privacy Note:</b> Calculations and model inferences run 100% locally on your machine.
+                </span>
+            </div>
+            """, unsafe_allow_html=True
+        )
+else:
+    # Explicit fallbacks to prevent variable runtime name breaks when settings panel remains collapsed
+    selected_model = "Milo:latest"
+    temperature = 0.8
+    withdrawal_rate = 5.0
+    inflation_rate = live_inflation
 
+st.markdown("---")
 
-st.sidebar.markdown(
-    """
-    
-    """,
-    unsafe_allow_html=True,
-)
-
-st.sidebar.markdown(
-    """
-    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333333;">
-            <span style="text-decoration: none; font-size: 14px; font-weight: 400; color: #228B22">
-                📊 Local AI Wealth Planner is a privacy-first wealth planner
-                  hosted entirely on your local machine. Built using Streamlit, LangChain, and Ollama,
-                    it simulates long-term portfolio growth adjusted for real-world inflation. 
-                    By integrating a local LLM, the application delivers tailored, professional 
-                    macroeconomic commentary for the Australian market as well as keeping your 
-                    financial data 100% private and safe from cloud APIs.
-            </span>
-    </div>
-
-    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333333;">
-        <a href="https://github.com/DzLeMQ/localAIwealthplanner" target="_blank" 
-           style="text-decoration: none; font-size: 15px; font-weight: 500; color: #228B22;">
-            💻 View Code on GitHub
-        </a>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-# 1. inflation adjusted calculation engine
+# ==============================================================================
+# 5. INFLATION ADJUSTED CALCULATION ENGINE
+# ==============================================================================
 def calculate_financial_plan(starting_principal, years_to_grow, annual_growth_rate, swr_rate, inflation_rate):
     r_nominal = annual_growth_rate / 100.0
     r_real = (annual_growth_rate - inflation_rate) / 100.0
@@ -236,10 +205,8 @@ def calculate_financial_plan(starting_principal, years_to_grow, annual_growth_ra
     if monthly_real_income <= 0:
         duration_display = "0 Years"
     elif swr <= r_real:
-        # If withdrawal rate is lower than or equal to inflation-adjusted return, the core fund stays intact
         duration_display = "Indefinitely (Perpetual Nest Egg)"
     else:
-        # If withdrawal rate exceeds the real return, calculate how many years until drawdown hits zero
         years_it_lasts = future_real_value / annual_real_income
         duration_display = f"{years_it_lasts:.1f} Years"
 
@@ -255,8 +222,9 @@ def calculate_financial_plan(starting_principal, years_to_grow, annual_growth_ra
         "chart_points": yearly_data
     }
 
-#2. Prompts and parameter inputs
-
+# ==============================================================================
+# 6. DASHBOARD FORM PARAMETERS AND CALCULATION PIPELINE RUNNER
+# ==============================================================================
 st.write("### 📈 Plan Your Monthly Income Target")
 st.write("Enter your metrics below to trigger your local AI engine and compounding calculations:")
 
@@ -268,7 +236,6 @@ with year_col:
 with growth_col:
     growth = st.number_input("Expected Annual Return (%)", min_value=0.0, max_value=30.0, value=live_highest_rate, step=0.1)
 
-# 3. processing pipeline
 
 st.markdown(
     """
