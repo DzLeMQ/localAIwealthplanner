@@ -22,7 +22,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-
+st.html("<style>.block-container { padding-top: 1rem !important; }</style>")
 
 # Initialize Session State tracking layer for layout state toggle
 if "show_in_page_settings" not in st.session_state:
