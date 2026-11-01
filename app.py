@@ -36,7 +36,6 @@ st.html(
         display: none !important;
     }
     
-    /* 3. Safe, consistent top window padding gap */
     .block-container {
         padding-top: 2rem !important;
     }
@@ -315,7 +314,7 @@ if st.button("⚡ Generate Strategic Growth Plan", type="primary", key="growth_p
             
             #### How to run this app locally:
 
-            1. **[💻 Clone the repository](https://github.com)** to your local machine.
+            1. **[💻 Clone the repository](https://github.com/DzLeMQ/localAIwealthplanner)** to your local machine.
             2. **Install the requirements** inside your virtual environment:
             ```bash
             pip install -r requirements.txt
