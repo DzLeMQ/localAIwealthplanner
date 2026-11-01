@@ -27,8 +27,17 @@ st.html(
     """
     <style>
     header[data-testid="stHeader"] {
+        background: transparent !important;
+        background-color: transparent !important;
+    }
+    
+    /* 2. Hide only the deployment status button and platform menus */
+    header[data-testid="stHeader"] div[data-testid="stToolbar"] {
+        visibility: hidden !important;
         display: none !important;
     }
+    
+    /* 3. Safe, consistent top window padding gap */
     .block-container {
         padding-top: 2rem !important;
     }
