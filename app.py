@@ -296,20 +296,18 @@ if st.button("⚡ Generate Strategic Growth Plan", type="primary", key="growth_p
             strategist will be ready to help you map out your wealth generation plan!
             
             ### How to run this app locally:
-            1.  
-            **<a href="https://github.com/DzLeMQ/localAIwealthplanner" target="_blank" 
-           style="text-decoration: none; font-size: 15px; font-weight: 500; color: #228B22;">
-            💻 Clone the repository
-            </a>** to your local machine.
+
+            1. **[💻 Clone the repository](https://github.com)** to your local machine.
             2. **Install the requirements** inside your virtual environment:
             ```bash
             pip install -r requirements.txt
             ```
-            3. **Make sure your local LLM server is running**.
+            3. **Make sure your local LLM server is running.**
             4. **Launch the app locally** using your terminal:
             ```bash
             streamlit run app.py
             ```
             """)
+
             
            
