@@ -22,8 +22,19 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-st.html("<style>.block-container { padding-top: 1rem !important; }</style>")
-
+# There is an invisible header block before the page. This removes it and safely pulls subheader up
+st.html(
+    """
+    <style>
+    header[data-testid="stHeader"] {
+        display: none !important;
+    }
+    .block-container {
+        padding-top: 2rem !important;
+    }
+    </style>
+    """
+)
 # Initialize Session State tracking layer for layout state toggle
 if "show_in_page_settings" not in st.session_state:
     st.session_state.show_in_page_settings = False
@@ -73,7 +84,7 @@ live_cash_rate = macro_data["cash_rate"]
 live_highest_rate = macro_data["highest_rate"]
 
 # Interface and layout
-st.subheader("📊 Local AI Wealth Planner")
+st.subheader("📊 Local AI Wealth Planner", anchor=False)
 
 # st.markdown("---")
 col_title, col_btn = st.columns([4, 1])
@@ -85,13 +96,13 @@ with col_title:
         f"Peak AU Savings Yield: {live_highest_rate}% p.a."
     )
 with col_btn:
-    if st.button("⚙️ Open/Close Strategic/System Settings", use_container_width=True):
+    if st.button("⚙️ Open/Close Strategic System Settings", type = "primary", use_container_width=True):
         st.session_state.show_in_page_settings = not st.session_state.show_in_page_settings
 
 # Parameter settings
 if st.session_state.show_in_page_settings:
     with st.container(border=True):
-        st.markdown("#### 🛠️ Strategic Configurations")
+        st.markdown("#### 🛠️ Strategic System Configurations")
         col_ctrl1, col_ctrl2 = st.columns(2)
         with col_ctrl1:
             selected_model = st.selectbox("Select Model Options", ["Milo:latest", "llama:latest"], index=0, key="model_main")
@@ -104,7 +115,7 @@ if st.session_state.show_in_page_settings:
             """
             <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #E2E8F0;">
                 <span style="font-size: 13px; color: #228B22;">
-                    📊 <b>Privacy Note:</b> Calculations and model inferences run 100% locally on your machine.
+                    📊 <b>Privacy Note:</b> Calculations and model inferences run 100% locally on your machine. This app is equipped with local LLMs.
                 </span>
             </div>
             """, unsafe_allow_html=True
@@ -239,17 +250,17 @@ if st.button("⚡ Generate Strategic Growth Plan", type="primary", key="growth_p
             analyse_col, chart_col = st.columns(2, gap="medium")
             
             with analyse_col:
-                st.success("### 📊 Inflation-Adjusted Milestones")
+                st.success("#### 📊 Inflation-Adjusted Milestones")
                 st.write(f"**Projected End Value (Nominal):** `${metrics['future_nominal']:,.2f}`")
                 st.write(f"**Projected Buying Power (Real Value):** `${metrics['future_real']:,.2f}`")
                 st.write(f"**Stable Monthly Income (In Today's Buying Power):** `${metrics['monthly_real_income']:,.2f}/month`")
                 st.write(f"**Income Sustainability Period:** `{metrics['duration_display']}`")
                 
-                st.write("### 🤖 Local AI Strategic Commentary")
+                st.write("#### 🤖 Local AI Strategic Commentary")
                 st.write(ai_analysis)
 
             with chart_col:
-                st.write("### 📈 Real vs. Nominal Growth Projections")
+                st.success("#### 📈 Real vs. Nominal Growth Projections")
 
                 raw_df = pd.DataFrame(metrics["chart_points"])
                 chart_df = pd.DataFrame({
@@ -280,8 +291,8 @@ if st.button("⚡ Generate Strategic Growth Plan", type="primary", key="growth_p
             st.error("⚠️ **This application requires a local environment to run.**")
             
             st.markdown("""
-            ### 🔒 Privacy Protection Active: Local Environment Required
-
+            #### 🔒 Privacy Protection Active: 
+            
             **Why are you seeing this message?**
             To guarantee absolute data privacy, this application is engineered to 
             run exclusively on your local machine. 
@@ -295,7 +306,7 @@ if st.button("⚡ Generate Strategic Growth Plan", type="primary", key="growth_p
             on your own local device. Once configured, your private AI financial 
             strategist will be ready to help you map out your wealth generation plan!
             
-            ### How to run this app locally:
+            #### How to run this app locally:
 
             1. **[💻 Clone the repository](https://github.com)** to your local machine.
             2. **Install the requirements** inside your virtual environment:
