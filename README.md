@@ -23,14 +23,14 @@ _Note: Milo:latest is my custom model._
 
 <a href="https://localaiwealthplanner-9ssnpxappumba3bmbbpwb7v.streamlit.app/">Local AI Wealth Planner</a>
 
-<img width="913" height="313" alt="image" src="https://github.com/user-attachments/assets/cdbdced3-43b6-477e-9371-de1043e530e6" />
+<img width="893" height="394" alt="image" src="https://github.com/user-attachments/assets/bb769d23-6693-49f1-8661-f87a041d2849" />
 
-<img width="925" height="314" alt="image" src="https://github.com/user-attachments/assets/66c6826d-a96c-410e-a49e-e11dce01ed80" />
+<img width="910" height="473" alt="image" src="https://github.com/user-attachments/assets/47d3acbb-da09-4477-87f1-02c159df645d" />
 
-<img width="937" height="432" alt="image" src="https://github.com/user-attachments/assets/4c4273e7-3ff1-4e30-9bbe-29c783a32d32" />
 
 ## ⚠ Disclaimer & Risk Warning
-I developed this project strictly for educational purposes and use it for my own personal wealth planning. Projections are simulated and do not guarantee future results. Users are responsible for evaluating financial risks.
+This project was developed strictly for educational purposes and personal wealth planning. All metrics, data, and charts shown in the accompanying images are simulated, fictional examples used for illustrative purposes only and do not represent actual financial accounts or real-world performance. Projections derived from this app are hypothetical and do not guarantee future results. Users are responsible for evaluating their own financial risks.
+
 
 # License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
