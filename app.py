@@ -116,7 +116,7 @@ else:
     withdrawal_rate = 5.0
     inflation_rate = live_inflation
 
-st.markdown("---")
+# st.markdown("---")
 
 # Calculation engine
 def calculate_financial_plan(starting_principal, years_to_grow, annual_growth_rate, swr_rate, inflation_rate):
@@ -169,7 +169,7 @@ def calculate_financial_plan(starting_principal, years_to_grow, annual_growth_ra
     }
 
 # Dashboard - parameters and calculation pipeline runner
-st.write("#### 📈 Plan Your Monthly Income Target")
+st.write("#### 📈 Plan Your Monthly Income")
 st.write("Enter your metrics below to trigger your local AI engine and compounding calculations:")
 
 principle_col, year_col, growth_col = st.columns(3, gap="small")
