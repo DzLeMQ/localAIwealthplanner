@@ -68,7 +68,7 @@ def fetch_live_au_rates():
 # Load live rates
 macro_data = fetch_live_au_rates()
 live_inflation = macro_data["inflation"]
-print(f"Live AU Inflation Rate: {live_inflation}%")
+# print(f"Live AU Inflation Rate: {live_inflation}%")
 live_cash_rate = macro_data["cash_rate"]
 live_highest_rate = macro_data["highest_rate"]
 
@@ -85,13 +85,13 @@ with col_title:
         f"Peak AU Savings Yield: {live_highest_rate}% p.a."
     )
 with col_btn:
-    if st.button("⚙️ Open / Close Settings", use_container_width=True):
+    if st.button("⚙️ Open/Close Strategic/System Settings", use_container_width=True):
         st.session_state.show_in_page_settings = not st.session_state.show_in_page_settings
 
 # Parameter settings
 if st.session_state.show_in_page_settings:
     with st.container(border=True):
-        st.markdown("#### 🛠️ Environment Configurations")
+        st.markdown("#### 🛠️ Strategic Configurations")
         col_ctrl1, col_ctrl2 = st.columns(2)
         with col_ctrl1:
             selected_model = st.selectbox("Select Model Options", ["Milo:latest", "llama:latest"], index=0, key="model_main")
